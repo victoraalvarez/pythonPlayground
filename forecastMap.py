@@ -8,7 +8,6 @@ import matplotlib.patches as mpatches
 import matplotlib.patheffects as PathEffects
 import numpy as np
 import shapefile
-from textwrap import wrap
 
 # Define the projection.
 ax = plt.axes(projection=ccrs.LambertConformal(central_latitude=35, central_longitude=-98,
