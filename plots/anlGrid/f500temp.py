@@ -4,6 +4,7 @@ import cartopy.io.shapereader as shpreader
 import cartopy.feature as cfeature
 from datetime import datetime
 import matplotlib as mpl
+import matplotlib.colors as colors
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as PathEffects
 import metpy.calc as mpcalc
@@ -18,6 +19,13 @@ import xarray as xr
 
 # Set current time.
 now = datetime.utcnow()
+
+# Set colormap.
+cmap = colors.ListedColormap(['lavenderblush','pink','hotpink','mediumorchid',
+                              'darkorchid','rebeccapurple','indigo','darkblue',
+                              'mediumblue','blue','dodgerblue','deepskyblue',
+                              'cyan','mediumspringgreen','lime','lawngreen',
+                              'greenyellow','yellow','gold'])
 
 # Import latest RAP dataset.
 imprt = TDSCatalog('https://thredds-test.unidata.ucar.edu/thredds/catalog/'
@@ -106,9 +114,10 @@ ax.background_patch.set_facecolor('none')
 ax.outline_patch.set_edgecolor('none')
 
 # Plot the dataset data.
-cs1 = ax.contour(lon, lat, fnl_hght, colors='black',linewidths=1.5,
+fnl_hghts = np.arange(4000,7000,60)
+cs1 = ax.contour(lon, lat, fnl_hght, fnl_hghts, colors='black',linewidths=1.5,
                 zorder=100, transform=ccrs.PlateCarree())
-cs2 = ax.contour(lon, lat, fnl_hght, colors='white',linewidths=.5,
+cs2 = ax.contour(lon, lat, fnl_hght, fnl_hghts, colors='white',linewidths=.5,
                 zorder=101, transform=ccrs.PlateCarree())
 
 
@@ -132,10 +141,9 @@ b2 = ax.barbs(lon, lat, fnl_uwnd.to('knots').m, fnl_vwnd.to('knots').m, color='w
 
 
 step_temp = np.arange(-40, 0, 2)
-cstep_temp = np.arange(-40, 0, 2)
-fill_temp = ax.contourf(lon, lat, fnl_temp, step_temp, cmap='twilight_shifted',
-                            vmin=-38,vmax=22,zorder=3,transform=ccrs.PlateCarree())
-contr_temp = ax.contour(lon, lat, fnl_temp, cstep_temp, linewidths=.5,linestyles='solid',
+fill_temp = ax.contourf(lon, lat, fnl_temp, step_temp, cmap=cmap,
+                            vmin=-40,vmax=-2,zorder=3,transform=ccrs.PlateCarree())
+contr_temp = ax.contour(lon, lat, fnl_temp, step_temp, linewidths=.5,linestyles='solid',
                             colors='black', zorder=3, transform=ccrs.PlateCarree())
 ctemp_lbl = ax.clabel(contr_temp, fontsize=5, colors='black', inline=1, inline_spacing=1,
           fmt='%i')

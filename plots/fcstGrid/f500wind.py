@@ -2,7 +2,8 @@ import cartopy
 import cartopy.crs as ccrs
 import cartopy.io.shapereader as shpreader
 import cartopy.feature as cfeature
-from datetime import datetime
+from datetime import datetime, timedelta
+import matplotlib.colors as colors
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as PathEffects
 import metpy.calc as mpcalc
@@ -17,6 +18,12 @@ import xarray as xr
 
 # Set current time.
 now = datetime.utcnow()
+print(now)
+
+# Set colormap.
+cmap = colors.ListedColormap(['dodgerblue','deepskyblue','skyblue','mediumpurple',
+                              'blueviolet','mediumvioletred','orangered','orange',
+                              'gold','khaki'])
 
 # Import latest RAP dataset.
 imprt = TDSCatalog('https://thredds-test.unidata.ucar.edu/thredds/catalog/'
@@ -24,12 +31,16 @@ imprt = TDSCatalog('https://thredds-test.unidata.ucar.edu/thredds/catalog/'
 dataset = imprt.datasets[0]
 ncss = dataset.subset()
 
+# Set forecast data time.
+hour = int(input("Desired delta (hour): "))
+fcsthour = now + timedelta(hours=hour)
+
 # Query the imported datasets wind data.
 wind = ncss.query()
 wind.variables('u-component_of_wind_isobaric',
                'v-component_of_wind_isobaric')
 wind.add_lonlat().vertical_level(500 * 100)
-wind.time(now)
+wind.time(fcsthour)
 wind.lonlat_box(north=55, south=20, east=281, west=230)
 wind_data = ncss.get_data(wind)
 
@@ -37,7 +48,7 @@ wind_data = ncss.get_data(wind)
 hght = ncss.query()
 hght.variables('Geopotential_height_isobaric')
 hght.add_lonlat().vertical_level(500 * 100)
-hght.time(now)
+hght.time(fcsthour)
 hght.lonlat_box(north=55, south=20, east=281, west=230)
 hght_data = ncss.get_data(hght)
 
@@ -70,17 +81,17 @@ fig = plt.figure(1, figsize=(10,10))
 ax.set_extent([-125, -89, 25, 50], ccrs.PlateCarree())
 
 # Create the map features.
-ax.add_feature(cfeature.OCEAN.with_scale('50m'),facecolor='#F2F2F2',
+ax.add_feature(cfeature.OCEAN.with_scale('50m'),facecolor='grey',
                                                 edgecolor='black',
                                                 zorder=0,
                                                 linewidth=.5)
 ax.add_feature(cfeature.LAND.with_scale('50m'),edgecolor='black',
-                                               facecolor='#E1E1E1',
+                                               facecolor='grey',
                                                zorder=1)
 ax.add_feature(cfeature.BORDERS.with_scale('50m'),zorder=4,linewidth=.5,edgecolor='black')
 ax.add_feature(cfeature.COASTLINE.with_scale('50m'),zorder=4,linewidth=.5,edgecolor='black')
 ax.add_feature(cfeature.LAKES.with_scale('50m'),zorder=2,linewidth=.5,edgecolor='black',
-                                                facecolor='#F2F2F2')
+                                                facecolor='grey')
 ax.add_feature(cfeature.STATES.with_scale('50m'),linewidth=.5,
                                                  edgecolor='black',
                                                  zorder=5)
@@ -90,9 +101,10 @@ ax.background_patch.set_facecolor('none')
 ax.outline_patch.set_edgecolor('none')
 
 # Plot the dataset data.
-cs1 = ax.contour(lon, lat, fnl_hght, colors='black',linewidths=1.5,
+fnl_hghts = np.arange(4000,7000,60)
+cs1 = ax.contour(lon, lat, fnl_hght, fnl_hghts, colors='black',linewidths=1.5,
                 zorder=100, transform=ccrs.PlateCarree())
-cs2 = ax.contour(lon, lat, fnl_hght, colors='white',linewidths=.5,
+cs2 = ax.contour(lon, lat, fnl_hght, fnl_hghts, colors='white',linewidths=.5,
                 zorder=101, transform=ccrs.PlateCarree())
 
 
@@ -115,10 +127,10 @@ b2 = ax.barbs(lon, lat, fnl_uwnd.to('knots').m, fnl_vwnd.to('knots').m, color='w
          zorder=104, transform=ccrs.PlateCarree())
 
 
-step_wndspeed = np.arange(30, 160, 10)
-cstep_wndspeed = np.arange(30, 160, 10)
-fill_wndspeed = ax.contourf(lon, lat, wndspeed, step_wndspeed, cmap='PuBu',
-                            vmin=-5,vmax=150,zorder=3,transform=ccrs.PlateCarree())
+step_wndspeed = np.arange(30, 140, 10)
+cstep_wndspeed = np.arange(30, 140, 10)
+fill_wndspeed = ax.contourf(lon, lat, wndspeed, step_wndspeed, cmap=cmap,
+                            vmin=30,vmax=130,zorder=3,transform=ccrs.PlateCarree())
 contr_wndspeed = ax.contour(lon, lat, wndspeed, cstep_wndspeed, linewidths=.5,
                             colors='black', zorder=3, transform=ccrs.PlateCarree())
 cwndspeedlbl = ax.clabel(contr_wndspeed, fontsize=5, colors='black', inline=1, inline_spacing=1,
@@ -143,10 +155,8 @@ df = '%m/%d/%Y %H:%M'
 plt.title("500MB WINDS",loc='left',fontsize=8,fontweight='bold',
           y=-0.09)
 timestamp = datetime.utcnow().strftime(df)+"Z"
-plt.title(timestamp,loc='right',fontsize=8,fontweight='bold',
+plt.title("DATA VALID: " + datatime,loc='right',fontsize=8,fontweight='bold',
           y=-0.09)
-plt.suptitle("DATA VALID: " + datatime,fontsize=6,ha='right',fontweight='bold',
-          x=0.764,y=0.094)
 
 cbar = fig.colorbar(fill_wndspeed, shrink=.896, anchor=0.1, pad=0.025)
 cbar.ax.tick_params(labelsize=7)

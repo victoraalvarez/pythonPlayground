@@ -18,14 +18,14 @@ fig = plt.figure(1, figsize=(10,10))
 ax.set_extent([-104.1, -95.5, 32.1, 39.1], ccrs.PlateCarree())
 
 # Create the map features.
-ax.add_feature(cfeature.OCEAN.with_scale('50m'),facecolor='slategrey',edgecolor='none',zorder=5)
+ax.add_feature(cfeature.OCEAN.with_scale('50m'),facecolor='grey',edgecolor='none',zorder=5)
 ax.add_feature(cfeature.LAND.with_scale('50m'),edgecolor='black',
-                                               facecolor='#E1E1E1',
+                                               facecolor='grey',
                                                zorder=1)
 ax.add_feature(cfeature.BORDERS.with_scale('50m'),zorder=2)
 ax.add_feature(cfeature.LAKES.with_scale('50m'),linewidth=.5,
-                                                facecolor='lightsteelblue',
-                                                edgecolor='dimgray',
+                                                facecolor='grey',
+                                                edgecolor='black',
                                                 zorder=3)
 ax.add_feature(cfeature.STATES.with_scale('50m'),linewidth=.5,
                                                  edgecolor='black',
@@ -37,7 +37,8 @@ reader = shpreader.Reader('/home/victoraalvarez/Documents/pythonScripts'
 counties = list(reader.geometries())
 COUNTIES = cfeature.ShapelyFeature(counties, ccrs.PlateCarree())
 
-ax.add_feature(COUNTIES,linewidth=.5,facecolor='none',edgecolor='#CCCCCC',zorder=4)
+ax.add_feature(COUNTIES,linewidth=.5,facecolor='none',edgecolor='black',zorder=4,
+                        alpha=.2)
 
 # Use the cartopy shapefile reader to import FORECAST AREA.
 reader = shpreader.Reader('/home/victoraalvarez/Documents/pythonScripts/'
@@ -45,7 +46,7 @@ reader = shpreader.Reader('/home/victoraalvarez/Documents/pythonScripts/'
 fa = list(reader.geometries())
 FA = cfeature.ShapelyFeature(fa, ccrs.PlateCarree())
 
-ax.add_feature(FA,linewidth=2.5,facecolor='none',edgecolor='#404040',zorder=7,
+ax.add_feature(FA,linewidth=2.5,facecolor='none',edgecolor='black',zorder=7,
                   capstyle='round')
 ax.add_feature(FA,linewidth=.5,facecolor='none',edgecolor='white',zorder=8)
 
@@ -62,15 +63,15 @@ try:
     lclon, lclat = lon_lat_lc
 
     low_txt = plt.text(lclon-0.1,lclat-0.1,'LOW',size=7,fontweight='bold',
-                            transform=ccrs.PlateCarree(),zorder=49,color='#53E6B0')
-    low_txt.set_path_effects([PathEffects.withStroke(linewidth=3, foreground='#404040')])
+                            transform=ccrs.PlateCarree(),zorder=49,color='deepskyblue')
+    low_txt.set_path_effects([PathEffects.withStroke(linewidth=3, foreground='black')])
 
     reader = shpreader.Reader('./files/conf/lowConfidence.shp')
     lowConfidence = list(reader.geometries())
     lco = cfeature.ShapelyFeature(lowConfidence, ccrs.PlateCarree())
 
-    ax.add_feature(lco,linewidth=3,facecolor='none',edgecolor='#404040',zorder=8)
-    ax.add_feature(lco,linewidth=1,facecolor='none',edgecolor='#53E6B0'
+    ax.add_feature(lco,linewidth=3,facecolor='none',edgecolor='black',zorder=8)
+    ax.add_feature(lco,linewidth=1,facecolor='none',edgecolor='deepskyblue'
                          ,zorder=9)
 except:
      pass
@@ -84,15 +85,15 @@ try:
     mdlon, mdlat = lon_lat_md
 
     med_txt = plt.text(mdlon-0.1,mdlat-0.1,'MED',size=7,fontweight='bold',
-                            transform=ccrs.PlateCarree(),zorder=49,color='#FAE46D')
-    med_txt.set_path_effects([PathEffects.withStroke(linewidth=3, foreground='#404040')])
+                            transform=ccrs.PlateCarree(),zorder=49,color='gold')
+    med_txt.set_path_effects([PathEffects.withStroke(linewidth=3, foreground='black')])
 
     reader = shpreader.Reader('./files/conf//medConfidence.shp')
     medConfidence = list(reader.geometries())
     mco = cfeature.ShapelyFeature(medConfidence, ccrs.PlateCarree())
 
-    ax.add_feature(mco,linewidth=3,facecolor='none',edgecolor='#404040',zorder=8)
-    ax.add_feature(mco,linewidth=1,facecolor='none',edgecolor='#FAE46D'
+    ax.add_feature(mco,linewidth=3,facecolor='none',edgecolor='black',zorder=8)
+    ax.add_feature(mco,linewidth=1,facecolor='none',edgecolor='gold'
                      ,zorder=9)
 except:
     pass
@@ -106,15 +107,15 @@ try:
     hilon, hilat = lon_lat_hi
 
     hi_txt = plt.text(hilon-0.1,hilat-0.1,'HIGH',size=7,fontweight='bold',
-                            transform=ccrs.PlateCarree(),zorder=49,color='#FF3F57')
-    hi_txt.set_path_effects([PathEffects.withStroke(linewidth=3, foreground='#404040')])
+                            transform=ccrs.PlateCarree(),zorder=49,color='crimson')
+    hi_txt.set_path_effects([PathEffects.withStroke(linewidth=3, foreground='black')])
 
     reader = shpreader.Reader('./files/conf/hiConfidence.shp')
     hiConfidence = list(reader.geometries())
     hco = cfeature.ShapelyFeature(hiConfidence, ccrs.PlateCarree())
 
-    ax.add_feature(hco,linewidth=3,facecolor='none',edgecolor='#404040',zorder=8)
-    ax.add_feature(hco,linewidth=1,facecolor='none',edgecolor='#FF3F57'
+    ax.add_feature(hco,linewidth=3,facecolor='none',edgecolor='black',zorder=8)
+    ax.add_feature(hco,linewidth=1,facecolor='none',edgecolor='crimson'
                      ,zorder=9)
 except:
     pass
